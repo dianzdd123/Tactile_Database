@@ -1,5 +1,7 @@
 # TacVerse Benchmark Code
 
+**Start here:** [Setup, data, run order and limitations](docs/REUSE.md) · [Contributing](CONTRIBUTING.md)
+
 **MSEI Lab:** [Website](https://zhangrobotics.com/msei_website/) · [Website on GitHub](https://github.com/dianzdd123/msei_website)
 
 **Repository:** [dianzdd123/Tactile_Database](https://github.com/dianzdd123/Tactile_Database)
@@ -31,7 +33,7 @@ An accelerator is required for training. The current code supports CUDA and Appl
 
 ## Expected data layout
 
-The scripts treat the parent directory of this folder as `PROJECT_ROOT`. A typical layout is:
+By default, the scripts treat the parent directory of this folder as `PROJECT_ROOT`. Set `TACVERSE_DATA_ROOT` to use an explicit dataset root; see the [reuse guide](docs/REUSE.md). A typical layout is:
 
 Dataset download:
 https://huggingface.co/datasets/Lan-2025/Tactile

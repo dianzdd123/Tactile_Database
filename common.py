@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -7,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(os.environ.get("TACVERSE_DATA_ROOT", Path(__file__).resolve().parents[1])).expanduser().resolve()
 RESULTS_DIR = PROJECT_ROOT / "results"
 
 
@@ -35,15 +36,32 @@ def assign_ordered_split(
     train_ratio: float = 0.6,
     val_ratio: float = 0.2,
 ) -> pd.DataFrame:
+    """Split ordered capture units within each group, keeping each unit intact.
+
+    Every group needs at least three units so train/validation/test are nonempty.
+    Small-group boundaries are clamped; usual 60/20/20 rounding is preserved.
+    """
+    if not (0 < train_ratio < 1 and 0 < val_ratio < 1 and train_ratio + val_ratio < 1):
+        raise ValueError("train_ratio and val_ratio must be positive and sum to less than 1.")
+    required = [*group_cols, order_col]
+    if not group_cols or metadata.empty or not metadata.index.is_unique:
+        raise ValueError("Provide nonempty metadata, grouping columns and a unique row index.")
+    missing = set(required) - set(metadata.columns)
+    if missing:
+        raise ValueError(f"Missing metadata columns: {sorted(missing)}")
+    if metadata[required].isna().any().any():
+        raise ValueError("Grouping and ordering columns must not contain missing values.")
     annotated = metadata.copy()
     split_values = pd.Series(index=annotated.index, dtype="object")
 
     for _, group in annotated.groupby(list(group_cols), sort=False):
         ordered_ids = np.array(sorted(group[order_col].unique()))
         num_unique = len(ordered_ids)
-        train_end = max(1, int(round(num_unique * train_ratio)))
+        if num_unique < 3:
+            raise ValueError(f"Each group needs at least 3 distinct {order_col} values; found {num_unique}.")
+        train_end = min(num_unique - 2, max(1, int(round(num_unique * train_ratio))))
         val_end = max(train_end + 1, int(round(num_unique * (train_ratio + val_ratio))))
-        val_end = min(val_end, num_unique)
+        val_end = min(val_end, num_unique - 1)
 
         train_ids = set(ordered_ids[:train_end])
         val_ids = set(ordered_ids[train_end:val_end])
