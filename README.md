@@ -1,5 +1,11 @@
 # TacVerse Benchmark Code
 
+**MSEI Lab:** [Website](https://zhangrobotics.com/msei_website/) · [Website on GitHub](https://github.com/dianzdd123/msei_website)
+
+**Repository:** [dianzdd123/Tactile_Database](https://github.com/dianzdd123/Tactile_Database)
+
+**Upstream attribution:** Forked from [LannWei/Tactile_Database](https://github.com/LannWei/Tactile_Database). Original authorship, citations and notices are retained.
+
 This repository contains PyTorch scripts for running tactile image benchmarks on the TacVerse dataset.
 
 ## Included scripts
